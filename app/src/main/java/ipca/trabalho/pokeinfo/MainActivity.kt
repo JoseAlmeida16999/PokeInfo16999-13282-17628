@@ -16,7 +16,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         recyclerView_main.layoutManager = LinearLayoutManager(this)
-        recyclerView_main.adapter = MainAdapter()
+        //recyclerView_main.adapter = MainAdapter()
 
         fetchJson()
     }
@@ -29,15 +29,20 @@ class MainActivity : AppCompatActivity() {
         val request = Request.Builder().url(url).build()
 
         val client = OkHttpClient()
+        
         client.newCall(request).enqueue(object: Callback{
 
             override fun onResponse(call: Call, response: Response) {
                 val body = response.body?.string()
                 println(body)
 
-                //val gson = GsonBuilder().create()
+                val gson = GsonBuilder().create()
 
-                //gson.fromJson<>(body)
+               val pokeInformation = gson.fromJson(body, PokeInformation::class.java)
+
+                runOnUiThread {
+                    recyclerView_main.adapter = MainAdapter(pokeInformation)
+                }
             }
 
             override fun onFailure(call: Call, e: IOException) {
@@ -49,7 +54,17 @@ class MainActivity : AppCompatActivity() {
     }
 }
 
+//{
+//
+//    "base_attack": 118,
+//    "base_defense": 111,
+//    "base_stamina": 128,
+//    "form": "Normal",
+//    "pokemon_id": 1,
+//    "pokemon_name": "Bulbasaur"
+//
+//},
 class PokeInformation(val creatures : List<Creature>)
 
-class Creature(val id: Int, val name: String)
+class Creature(val base_attack: Int, val base_defense: Int, val base_stamina: Int, val form: String, val pokemon_id: Int, val pokemon_name : String)
 

@@ -7,12 +7,12 @@ import androidx.recyclerview.widget.RecyclerView
 import kotlinx.android.synthetic.main.poke_row.view.*
 import java.text.FieldPosition
 
-class MainAdapter : RecyclerView.Adapter<CustomViewHolder>() {
+class MainAdapter(val pokeInformation: PokeInformation) : RecyclerView.Adapter<CustomViewHolder>() {
 
     val pokeNames = listOf<String>("poke1","poke2","poke3")
     //numero de items
     override fun getItemCount(): Int {
-        return pokeNames.size
+        return pokeInformation.creatures.count()
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CustomViewHolder {
@@ -23,8 +23,9 @@ class MainAdapter : RecyclerView.Adapter<CustomViewHolder>() {
 
     override fun onBindViewHolder(holder: CustomViewHolder, position: Int){
 
-        val pokeName = pokeNames.get(position)
-        holder.itemView.textView_name.text = pokeName
+        //val pokeName = pokeNames.get(position)
+        val poke = pokeInformation.creatures.get(position)
+        holder.itemView.textView_name.text = poke.pokemon_name
 
     }
 }
