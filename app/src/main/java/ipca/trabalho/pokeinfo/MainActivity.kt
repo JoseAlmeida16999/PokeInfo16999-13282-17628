@@ -1,70 +1,35 @@
 package ipca.trabalho.pokeinfo
 
-import androidx.appcompat.app.AppCompatActivity
+
 import android.os.Bundle
-import android.widget.LinearLayout
-import androidx.recyclerview.widget.LinearLayoutManager
-import com.google.gson.GsonBuilder
-import kotlinx.android.synthetic.main.activity_main.*
-import okhttp3.*
-import java.io.IOException
+import android.widget.ListView
+import androidx.appcompat.app.AppCompatActivity
 
 class MainActivity : AppCompatActivity() {
+    private lateinit var listView: ListView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        recyclerView_main.layoutManager = LinearLayoutManager(this)
-        //recyclerView_main.adapter = MainAdapter()
+        listView = findViewById<ListView>(R.id.pokemon_list_view)
 
-        fetchJson()
-    }
+        val pokemonList = Pokemon.getPokemonsFromFile("pokeinfo.json", this)
 
-    fun fetchJson() {
-        println("Attempting to fetch Json")
+        val adapter = PokemonAdapter(this, pokemonList)
+        listView.adapter = adapter
 
-        val url ="https://api.myjson.com/bins/whx34"
+        val context = this
+        listView.setOnItemClickListener { _, _, position, _ ->
+            // 1
+            val selectedRecipe = pokemonList[position]
 
-        val request = Request.Builder().url(url).build()
+            // 2
+            val detailIntent = PokeDetailActivity.newIntent(context, selectedRecipe)
 
-        val client = OkHttpClient()
+            // 3
+            startActivity(detailIntent)
+        }
 
-        client.newCall(request).enqueue(object: Callback{
-
-            override fun onResponse(call: Call, response: Response) {
-                val body = response.body?.string()
-                println(body)
-
-                val gson = GsonBuilder().create()
-
-               val pokeInformation = gson.fromJson(body, PokeInformation::class.java)
-
-                runOnUiThread {
-                    recyclerView_main.adapter = MainAdapter(pokeInformation)
-                }
-            }
-
-            override fun onFailure(call: Call, e: IOException) {
-                println("Failed to execute")
-            }
-
-
-        })
     }
 }
-
-//{
-//
-//    "base_attack": 118,
-//    "base_defense": 111,
-//    "base_stamina": 128,
-//    "form": "Normal",
-//    "pokemon_id": 1,
-//    "pokemon_name": "Bulbasaur"
-//
-//},
-class PokeInformation(val creatures : List<Creature>)
-
-class Creature(val base_attack: Int, val base_defense: Int, val base_stamina: Int, val form: String, val pokemon_id: Int, val pokemon_name : String)
-
